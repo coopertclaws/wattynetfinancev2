@@ -1,0 +1,39 @@
+extends layout
+
+block content
+  h1= title
+  br
+
+  form(action="/manualrace" method="POST" class="form-registration")
+    label(for="distance") Distance (KM):
+    input(
+      type="number"
+      id="distance"
+      name="distance"
+      class="form-control"
+      value=distance
+    )
+
+    label(for="time") Estimated Time (minutes):
+    input(
+      type="number"
+      id="time"
+      name="time"
+      class="form-control"
+      value=time
+    )
+
+    label(for="weight") Weight (KG):
+    input(
+      type="number"
+      id="weight"
+      name="weight"
+      class="form-control"
+      value=weight
+    )
+    
+    input(
+      type="submit"
+      value="Submit"
+      class="btn btn-lg btn-primary btn-block"
+    )

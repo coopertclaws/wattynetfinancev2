@@ -1,0 +1,35 @@
+extends layout
+
+block content
+  h1= title
+  br
+
+  form(action='/deleteproduct', method='post')
+    table(class="table")
+      thead
+        tr
+          th Select
+          th Vendor
+          th Type
+          th Name
+          th Flavour
+          th Mass (g)
+          th Calories
+          th Carbs
+          th Protein
+          th Fat
+      tbody
+        - each product in products
+          tr
+            td
+              input(id = product._id, type="radio", name="productlist", value=product._id)
+              td= product.vendor
+              td= product.product_type
+              td= product.product_name
+              td= product.flavour
+              td= product.mass
+              td= product.calories
+              td= product.carbs
+              td= product.protein
+              td= product.fat
+      button(type='submit') Delete Product

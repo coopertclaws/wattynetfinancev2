@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  h1= title
+  br
+
+  form(action='/delete', method='post')
+    table(class="table")
+      thead
+        tr
+          th Select
+          th Name
+          th Email
+          th DoB
+          th Weight (KG)
+      tbody
+        - each user in users
+          tr
+            td
+              input(id = user._id, type="radio", name="userlist", value=user._id)
+              td= user.name
+              td= user.email
+              td= user.dob
+              td= user.weight
+      button(type='submit') Delete User
