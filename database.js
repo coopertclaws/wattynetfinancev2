@@ -1,34 +1,29 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mysql = require("mysql");
 
-var User = new Schema({
-//  title : String,
-  name: String,
-  email: String,
-  dob: Date,
-  weight: Number
+// Create a pool connection to the database
+const pool = mysql.createPool({
+  connectionLimit: 10,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DATABASE
 });
 
-var Product = new Schema({
-  product_type: String,
-  product_name: String,
-  flavour: String,
-  mass: Number,
-  calories: Number,
-  carbs: Number,
-  protein: Number,
-  fat: Number,
-  sodium: Number,
-  chloride: Number,
-  potassium: Number,
-  calcium: Number,
-  caffeine: Number,
-  vendor: String,
-  notes: String
-});
+// Open the connection
+pool.getConnection((err, connection) => {
+  if (err) {
+      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+          console.error('Database connection was closed.')
+      }
+      if (err.code === 'ER_CON_COUNT_ERROR') {
+          console.error('Database has too many connections.')
+      }
+      if (err.code === 'ECONNREFUSED') {
+          console.error('Database connection was refused.')
+      }
+  }
+  if (connection) connection.release()
+  return
+})
 
-mongoose.model('users', User);
-
-mongoose.model('products', Product);
-
-mongoose.connect(`${process.env.DATABASECONN}`, { useNewUrlParser: true });
+module.exports = pool;

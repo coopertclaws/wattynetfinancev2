@@ -13,11 +13,11 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var registrationRouter = require('./routes/registration');
-var productRouter = require('./routes/product');
-var productlistRouter = require('./routes/productlist');
-var manualraceRouter = require('./routes/manualrace');
-var myprofileRouter = require('./routes/myprofile');
+// var registrationRouter = require('./routes/registration');
+// var productRouter = require('./routes/product');
+// var productlistRouter = require('./routes/productlist');
+// var manualraceRouter = require('./routes/manualrace');
+// var myprofileRouter = require('./routes/myprofile');
 
 const basicAuth = require('express-basic-auth');
 
@@ -69,21 +69,21 @@ app.use((req, res, next) => {
     });
 });
 
-app.use(basicAuth({
-  users: { admin: `${process.env.ADMINPASS}` },
-  challenge: true
-}));
+// app.use(basicAuth({
+//   users: { admin: `${process.env.ADMINPASS}` },
+//   challenge: true
+// }));
 
 app.use('/', indexRouter);
 app.use('/users', oidc.ensureAuthenticated(), usersRouter);
-app.use('/registration', registrationRouter);
-app.use('/create', registrationRouter);
-app.use('/product', productRouter);
-app.use('/productlist', productlistRouter);
-app.use('/delete', usersRouter);
-app.use('/deleteproduct', productlistRouter);
-app.use('/manualrace', manualraceRouter);
-app.use('/myprofile', oidc.ensureAuthenticated(), myprofileRouter);
+// app.use('/registration', registrationRouter);
+// app.use('/create', registrationRouter);
+// app.use('/product', productRouter);
+// app.use('/productlist', productlistRouter);
+// app.use('/delete', usersRouter);
+// app.use('/deleteproduct', productlistRouter);
+// app.use('/manualrace', manualraceRouter);
+// app.use('/myprofile', oidc.ensureAuthenticated(), myprofileRouter);
 
 app.get('/protected', oidc.ensureAuthenticated(), (req, res) => {
   res.send(JSON.stringify(req.userContext.userinfo));
