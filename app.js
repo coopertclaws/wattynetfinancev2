@@ -11,11 +11,17 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+// content and form routes
 var indexRouter = require('./routes/index');
+var createVirtualAccountRouter = require('./routes/createvirtualaccount');
+
+// api routes
 var usersRouter = require('./routes/api/users');
 var userRouter = require('./routes/api/user');
 var baseAccountRouter = require('./routes/api/baseaccount');
 var virtualAccountRouter = require('./routes/api/virtualaccount');
+
+
 // var registrationRouter = require('./routes/registration');
 // var productRouter = require('./routes/product');
 // var productlistRouter = require('./routes/productlist');
@@ -78,6 +84,8 @@ app.use((req, res, next) => {
 // }));
 
 app.use('/', indexRouter);
+app.use('/createvirtualaccount', createVirtualAccountRouter);
+
 app.use('/api/users', usersRouter);
 app.use('/api/user', userRouter);
 app.use('/api/baseAccount', baseAccountRouter);

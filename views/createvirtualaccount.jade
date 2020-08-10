@@ -1,0 +1,58 @@
+extends layout
+
+block content
+  h1= title
+  br
+
+  form(action="/api/virtualaccount" method="POST" class="form-registration")
+    label(for="user") User:
+    input(
+      type="number"
+      id="user"
+      name="user"
+      class="form-control"
+      value=name
+    )
+
+
+    label(for="name") Virtual Account Name:
+    input(
+      type="text"
+      id="name"
+      name="name"
+      class="form-control"
+      value=name
+    )
+
+    label(for="physical_account") Parent (Real) Account:
+    input(
+      type="number"
+      id="physical_account"
+      name="physical_account"
+      class="form-control"
+      value=physical_account
+    )
+
+    label(for="amount") Monthly Saving Amount:
+    input(
+      type="number"
+      id="amount"
+      name="amount"
+      class="form-control"
+      value=amount
+    )
+
+    label(for="starting_balance") Starting Balance:
+    input(
+      type="number"
+      id="starting_balance"
+      name="starting_balance"
+      class="form-control"
+      value=starting_balance
+    )
+
+    input(
+      type="submit"
+      value="Submit"
+      class="btn btn-lg btn-primary btn-block"
+    )
