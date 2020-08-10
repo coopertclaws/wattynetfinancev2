@@ -12,7 +12,10 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var usersRouter = require('./routes/api/users');
+var userRouter = require('./routes/api/user');
+var baseAccountRouter = require('./routes/api/baseaccount');
+var virtualAccountRouter = require('./routes/api/virtualaccount');
 // var registrationRouter = require('./routes/registration');
 // var productRouter = require('./routes/product');
 // var productlistRouter = require('./routes/productlist');
@@ -75,13 +78,16 @@ app.use((req, res, next) => {
 // }));
 
 app.use('/', indexRouter);
-app.use('/users', oidc.ensureAuthenticated(), usersRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/user', userRouter);
+app.use('/api/baseAccount', baseAccountRouter);
+app.use('/api/virtualAccount', virtualAccountRouter);
 // app.use('/registration', registrationRouter);
 // app.use('/create', registrationRouter);
 // app.use('/product', productRouter);
 // app.use('/productlist', productlistRouter);
 // app.use('/delete', usersRouter);
-// app.use('/deleteproduct', productlistRouter);
+// app.use('/deleteproduct', oidc.ensureAuthenticated(), productlistRouter);
 // app.use('/manualrace', manualraceRouter);
 // app.use('/myprofile', oidc.ensureAuthenticated(), myprofileRouter);
 
