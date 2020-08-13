@@ -1,7 +1,28 @@
 var express = require('express');
 var router = express.Router();
 var query = require('../../controllers/dbquery');
+const session = require('express-session');
+const { ExpressOIDC } = require('@okta/oidc-middleware');
+const okta = require("@okta/okta-sdk-nodejs");
 
+const client = new okta.Client({
+  orgUrl: process.env.ORGURL,
+  token: process.env.TOKEN
+});
+
+router.use((req, res, next) => {
+  if (!req.userinfo) {
+    return next();
+  }
+  oktaClient.getUser(req.userinfo.sub)
+    .then(user => {
+      req.user = user;
+      res.locals.user = user;
+      next();
+    }).catch(err => {
+      next(err);
+    });
+});
 
 router.get('/:id', function(req, res) {
     query.getVirtualAccount(req, res, function(data, error) {
@@ -23,7 +44,6 @@ router.get('/:id', function(req, res) {
 });
 
 router.get('/', function(req, res) {
-    res.locals.user='21';
     query.getAllVirtualAccounts(req, res, function(data, error) {
         if(error) {
             res.send('Something Broke!');
@@ -31,7 +51,8 @@ router.get('/', function(req, res) {
         else {
             
             res.send(data);
-            // res.send(data.data[0].name);
+            console.log(req.userContext.userinfo);
+        // res.send(data.data[0].name);
         //     res.render('displayvirtualaccount', { title: 'Virtual Account Information',
         //                                             name: data.data[0].name,
         //                                             physical_account: data.data[0].physical_account,
@@ -45,12 +66,6 @@ router.get('/', function(req, res) {
 });
 
 
-
-// router.get('/', function(req, res) {
-//     console.log('No parameters called');
-//     res.send('No parameters called');
-// });
-
 router.post('/', function(req, res) {
     query.createVirtualAccount(req, res, function(data, error) {
         if(error) {
@@ -63,26 +78,6 @@ router.post('/', function(req, res) {
     })
 
 });
-
-
-
-
-
-
-// router.post('/', function(req, res, next) {
-//     res.redirect('virtualaccount');
-// },
-// query.createVirtualAccount
-// );
-
-
-// router.post('/', function(req, res, next) {
-//     next ()
-// },
-// query.createVirtualAccount
-// );
-
-
 
 
 

@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var query = require('../../controllers/dbquery');
 
+var app = module.exports = express();
+const basicAuth = require('express-basic-auth');
+
 //router.get('/', query.getAllUsers);
 
 // router.get('/:id', function(req, res, next) {
@@ -11,8 +14,16 @@ var query = require('../../controllers/dbquery');
 // query.getUser
 // );
 
+// app.use(basicAuth({
+//   users: { admin: `${process.env.ADMINPASS}` },
+//   challenge: true
+// }));
 
-router.get('/:id', function(req, res, next) {
+router.get('/:id', (basicAuth({
+    users: { admin: `${process.env.ADMINPASS}` },
+    challenge: true
+  })),
+  function(req, res, next) {
     res.locals.id = req.params.id
     next ()
 },

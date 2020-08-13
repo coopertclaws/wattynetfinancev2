@@ -86,10 +86,11 @@ app.use((req, res, next) => {
 app.use('/', indexRouter);
 app.use('/createvirtualaccount', createVirtualAccountRouter);
 
-app.use('/api/users', usersRouter);
+app.use('/api/users', oidc.ensureAuthenticated(), usersRouter);
 app.use('/api/user', userRouter);
 app.use('/api/baseAccount', baseAccountRouter);
-app.use('/api/virtualAccount', virtualAccountRouter);
+app.use('/api/virtualAccount', oidc.ensureAuthenticated(), virtualAccountRouter);
+
 // app.use('/registration', registrationRouter);
 // app.use('/create', registrationRouter);
 // app.use('/product', productRouter);

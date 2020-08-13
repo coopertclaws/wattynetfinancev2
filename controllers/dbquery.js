@@ -58,7 +58,7 @@ exports.getVirtualAccount = function(req, res, next) {
 };
 
 exports.getAllVirtualAccounts = function(req, res, next) {
-    var results = db.query("SELECT * FROM virtual_account WHERE user = " + res.locals.user, function(error, results, fields) {
+    var results = db.query("SELECT virtual_account.name, virtual_account.current_balance, virtual_account.amount, virtual_account.starting_balance FROM virtual_account INNER JOIN USER ON user.id = virtual_account.user WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'", function(error, results, fields) {
         if (error) {
             next(null, {
                 status: "error",
@@ -73,3 +73,20 @@ exports.getAllVirtualAccounts = function(req, res, next) {
         }, null);
     });
 };
+
+// exports.getAllVirtualAccounts = function(req, res, next) {
+//     var results = db.query("SELECT * FROM virtual_account WHERE user = " + res.locals.user, function(error, results, fields) {
+//         if (error) {
+//             next(null, {
+//                 status: "error",
+//                 message: error
+//             });
+//         }
+
+//         next({
+//             status: "success",
+//             message: "data retreived",
+//             data: results
+//         }, null);
+//     });
+// };
