@@ -1,0 +1,32 @@
+extends layout
+
+block content
+
+    h1 #{title}
+ 
+    form(action='/api/virtualaccount', method='get')
+     table(class="table")
+      thead
+       tr
+        th Select
+        th Virtual Account
+        th Current Balance
+        th Monthly Amount
+        th Starting Balance
+        th Real Account
+      tbody
+       - each account in account_array
+        tr
+         td
+          input(id = account.id, type="radio", name="account", value=account.id)
+          td #{account.name}
+          td £#{account.current_balance}
+          td £#{account.amount}
+          td £#{account.starting_balance}
+          td #{account.real_account}
+     button(
+        type='submit'
+        value="Edit Account"
+        class="btn btn-lg btn-primary"
+        label="Edit Account"
+      ) Edit

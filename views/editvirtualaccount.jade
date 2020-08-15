@@ -1,0 +1,36 @@
+extends layout
+
+block content
+  h1= title
+  br
+  p.form-registration Current Balance: £#{account_array.current_balance}
+  p.form-registration Starting Balance: £#{account_array.starting_balance}
+  p.form-registration Real Account: #{account_array.physical_account}
+  br
+  p.form-registration Monthly Amount: £#{account_array.amount}
+  p.form-registration Account Name: #{account_array.name}
+
+  form(action="/virtualaccount" method="PUT" class="form-registration")
+    label(for="amount") Change Monthly Amount:
+    input(
+      type="number"
+      id="amount"
+      name="amount"
+      class="form-control"
+      value=amount
+    )
+
+    label(for="name") Change Virtual Account Name:
+    input(
+      type="text"
+      id="name"
+      name="name"
+      class="name"
+      value=name
+    )
+
+    input(
+      type="submit"
+      value="Update Settings"
+      class="btn btn-lg btn-primary btn-block"
+    )

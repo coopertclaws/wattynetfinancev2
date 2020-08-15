@@ -8,6 +8,10 @@ body {
   margin: 0 0 2rem;
 }
 
+/* My custom css */
+.bodytext {
+  text-align: center;
+}
 /* css for registration form and errors*/
 .form-registration {
   max-width: 330px;
