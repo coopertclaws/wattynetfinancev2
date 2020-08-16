@@ -56,7 +56,7 @@ router.get('/', function(req, res) {
             }
             else {
                 console.log(data);
-                res.render('displayallvirtualaccounts', { title: 'Account Overview',
+                res.render('displayallvirtualaccounts', { title: 'Virtual Accounts',
                                                     account_array: data.data
                                                 });
         }

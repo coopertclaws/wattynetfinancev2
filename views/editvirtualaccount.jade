@@ -20,10 +20,11 @@ block content
     label(for="amount") Change Monthly Amount:
     input(
       type="number"
+      step="any"
       id="amount"
       name="amount"
       class="form-control"
-      value=amount
+      value=account_array.amount
     )
 
     label(for="name") Change Virtual Account Name:
@@ -32,7 +33,7 @@ block content
       id="name"
       name="name"
       class="name"
-      value=name
+      value=account_array.name
     )
 
     label(for="id")
