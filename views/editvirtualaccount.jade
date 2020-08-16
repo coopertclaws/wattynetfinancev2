@@ -10,7 +10,13 @@ block content
   p.form-registration Monthly Amount: £#{account_array.amount}
   p.form-registration Account Name: #{account_array.name}
 
-  form(action="/virtualaccount" method="PUT" class="form-registration")
+  form(action="/api/virtualaccount?_method=PUT" method="POST" class="form-registration")
+    //- label(for="_method")
+    //- input(
+    //-   type="hidden"
+    //-   name="_method"
+    //-   value="PUT"
+    //- )
     label(for="amount") Change Monthly Amount:
     input(
       type="number"
@@ -27,6 +33,14 @@ block content
       name="name"
       class="name"
       value=name
+    )
+
+    label(for="id")
+    input(
+      type="hidden"
+      id="id"
+      name="id"
+      value=account_array.id
     )
 
     input(
