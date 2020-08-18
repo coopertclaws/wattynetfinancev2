@@ -18,7 +18,7 @@ var createVirtualAccountRouter = require('./routes/createvirtualaccount');
 // api routes
 var usersRouter = require('./routes/api/users');
 var userRouter = require('./routes/api/user');
-var baseAccountRouter = require('./routes/api/baseaccount');
+var physicalAccountRouter = require('./routes/api/physicalaccount');
 var virtualAccountRouter = require('./routes/api/virtualaccount');
 
 
@@ -88,7 +88,7 @@ app.use('/createvirtualaccount', createVirtualAccountRouter);
 
 app.use('/api/users', oidc.ensureAuthenticated(), usersRouter);
 app.use('/api/user', userRouter);
-app.use('/api/baseAccount', baseAccountRouter);
+app.use('/api/physicalaccount', physicalAccountRouter);
 app.use('/api/virtualAccount', oidc.ensureAuthenticated(), virtualAccountRouter);
 
 // app.use('/registration', registrationRouter);

@@ -5,50 +5,37 @@ block content
   br
 
   form(action="/api/virtualaccount" method="POST" class="form-registration")
-    label(for="user") User:
-    input(
-      type="number"
-      id="user"
-      name="user"
-      class="form-control"
-      value=name
-    )
+    label(for="account") Select Parent (Real) Account:
+      select(bankacc='dropDown', id='account_id', class='form-control', name='account_id')
+        each account in account_array
+          option(value=account.id) #{account.name}
 
-
-    label(for="name") Virtual Account Name:
+    label(for="name") Give your account a name:
     input(
       type="text"
       id="name"
       name="name"
       class="form-control"
-      value=name
-    )
-
-    label(for="physical_account") Parent (Real) Account:
-    input(
-      type="number"
-      id="physical_account"
-      name="physical_account"
-      class="form-control"
-      value=physical_account
     )
 
     label(for="amount") Monthly Saving Amount:
     input(
       type="number"
+      step="any"
       id="amount"
       name="amount"
       class="form-control"
-      value=amount
+      value=0
     )
 
-    label(for="starting_balance") Starting Balance:
+    label(for="starting_balance") Starting Balance (if any):
     input(
       type="number"
+      step="any"
       id="starting_balance"
       name="starting_balance"
       class="form-control"
-      value=starting_balance
+      value=0
     )
 
     input(

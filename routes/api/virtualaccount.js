@@ -27,10 +27,6 @@ router.use((req, res, next) => {
     });
 });
 
-
-
-
-
 router.get('/', function(req, res) {
     if (req.query.account) {
         console.log('account query sent');
@@ -65,18 +61,46 @@ router.get('/', function(req, res) {
 
 });
 
-router.post('/', function(req, res) {
-    query.createVirtualAccount(req, res, function(data, error) {
+router.post('/', function(req, res, next) {
+    query.validatePhysicalAccount(req, res, function(data, error) {
         if(error) {
             res.send('Something Broke!');
         }
         else {
-            // res.send(data.data[0].name);
-            res.redirect('virtualaccount');
+            console.log('1st middleware executed');
+            next();
+            // res.send(data);
+            // res.redirect('virtualaccount');
         }
     })
 
-});
+    }, function(req, res) {
+        query.createVirtualAccount(req, res, function(data, error) {
+            if(error) {
+                res.send('Something Broke!');
+            }
+            else {
+                console.log('2nd middleware executed');
+                // res.send(data);
+                res.redirect('virtualaccount');
+            }
+        })
+    }   
+);
+
+// router.post('/', function(req, res) {
+//     query.validatePhysicalAccount(req, res, function(data, error) {
+//         if(error) {
+//             res.send('Something Broke!');
+//         }
+//         else {
+//             console.log('1st middleware executed');
+//             // res.send(data);
+//             // res.redirect('virtualaccount');
+//         }
+//     })
+
+// });
 
 router.put('/', function(req, res) {
     console.log('PUT request called');
