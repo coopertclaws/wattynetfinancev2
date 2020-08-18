@@ -32,12 +32,58 @@ exports.getAllPhysicalAccounts = function(req, res, next) {
     });
 };
 
+exports.getPhysicalAccount = function(req, res, next) {
+    console.log(req.query);
+    var results = db.query("SELECT physical_account.id, physical_account.name FROM physical_account INNER JOIN user ON user.id = physical_account.user WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'" + " AND physical_account.id = " + req.query.account, function (error, results, fields) {
+        res.locals.results = results;
+        if (error) {
+            next(null,{
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retrieved",
+            data: results
+        }, null);
+    });
+  
+};
 
 exports.createPhysicalAccount = function(req, res, next) {
-    var results = db.query("INSERT INTO physical_account (user, name) VALUES (" + req.body.user + ", " + "'" + req.body.name + "')", function (error, results, fields) {
-        res.send(results);
-        console.log('name: ' + req.body.name);
-        console.log('user: ' + req.body.user);
+    console.log("INSERT INTO physical_account (user, name) VALUES ('" + req.userContext.userinfo.preferred_username + "', " + "'" + req.body.name + "')");
+    var results = db.query("INSERT INTO physical_account (user, name) VALUES ((SELECT id FROM user WHERE email ='" + req.userContext.userinfo.preferred_username + "'), " + "'" + req.body.name + "')", function (error, results, fields) {
+        if (error) {
+            next(null,{
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retrieved",
+            data: results
+        }, null);
+    });
+};
+
+exports.updatePhysicalAccount = function(req, res, next) {
+    var results = db.query("UPDATE physical_account INNER JOIN user ON user.id = physical_account.user SET physical_account.name = '" + req.body.name + "' WHERE (physical_account.id = " + req.body.id + " AND user.email='" + req.userContext.userinfo.preferred_username + "')", function (error, results, fields) {
+        if (error) {
+            next(null,{
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retrieved",
+            data: results
+        }, null);
     });
 };
 
@@ -64,7 +110,6 @@ exports.validatePhysicalAccount = function(req, res, next) {
 };
 
 exports.createVirtualAccount = function(req, res, next) {
-    console.log("INSERT INTO virtual_account (user, name, physical_account, amount, starting_balance) VALUES ((SELECT id FROM user WHERE email = '" + req.body.user + "'), '" + req.body.name + "', '" + req.body.account_id + "', '" + req.body.amount + "', '" + req.body.starting_balance + "')");
     var results = db.query("INSERT INTO virtual_account (user, name, physical_account, amount, starting_balance) VALUES ((SELECT id FROM user WHERE email = '" + req.userContext.userinfo.preferred_username + "'), '" + req.body.name + "', '" + req.body.account_id + "', '" + req.body.amount + "', '" + req.body.starting_balance + "')", function (error, results, fields) {
         if (error) {
             next(null,{

@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  h1= title
+  br
+  p.form-registration Account Name: #{account_array.name}
+
+  form(action="/api/physicalaccount?_method=PUT" method="POST" class="form-registration")
+    label(for="name") Change Virtual Account Name:
+    input(
+      type="text"
+      id="name"
+      name="name"
+      class="name"
+      value=account_array.name
+    )
+
+    label(for="id")
+    input(
+      type="hidden"
+      id="id"
+      name="id"
+      value=account_array.id
+    )
+
+    input(
+      type="submit"
+      value="Update Settings"
+      class="btn btn-lg btn-primary btn-block"
+    )

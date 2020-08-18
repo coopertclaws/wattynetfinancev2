@@ -24,16 +24,13 @@ router.use((req, res, next) => {
 
 router.get('/', function(req, res) {
     if (req.query.account) {
-        // This route takes an argument to supply detail for a single physical account
-        // Not sure use case for this yet though so WIP
-        // Renders to the wrong page at the minute anyhow
         query.getPhysicalAccount(req, res, function(data, error) {
             if(error) {
                 res.send('Something Broke!');
             }
             else {
                 console.log(data.data);
-                res.render('editvirtualaccount', { title: 'Edit Virtual Account Information',
+                res.render('editphysicalaccount', { title: 'Edit Physical Account Information',
                                                         account_array: data.data[0]
                                                     });
             }
@@ -48,26 +45,41 @@ router.get('/', function(req, res) {
                 res.send('Something Broke!');
             }
             else {
-                console.log(data);
-                console.log('something returned');
-                // res.render('displayallvirtualaccounts', { title: 'Virtual Accounts',
-                //                                     account_array: data.data
-                //                                 });
-                // res.send('some stuff');
-                res.send(data.data);
+                res.render('displayallphysicalaccounts', { title: 'Physical Accounts',
+                                                    account_array: data.data
+                                                });
         }
     })
     }
 
 });
 
-router.post('/', function(req, res, next) {
-    // res.locals.id = req.params.id
-    // console.log('create account route called');
-    // console.log(req.body.name);
-    next ()
-},
-query.createPhysicalAccount
-);
+
+router.post('/', function(req, res) {
+    query.createPhysicalAccount(req, res, function(data, error) {
+        if(error) {
+            res.send('Something Broke!');
+        }
+        else {
+            res.redirect('physicalaccount');
+        }
+    })
+
+});
+
+router.put('/', function(req, res) {
+    query.updatePhysicalAccount(req, res, function(data, error) {
+        if(error) {
+            res.send('Something Broke!');
+        }
+        else {
+            // res.send(data.data[0].name);
+            res.redirect('physicalaccount');
+        }
+    })
+
+});
+
+
 
 module.exports = router;

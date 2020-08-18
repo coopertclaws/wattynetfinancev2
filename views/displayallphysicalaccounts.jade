@@ -1,0 +1,27 @@
+extends layout
+
+block content
+
+    h1 #{title}
+ 
+    form(action='/api/physicalaccount', method='get')
+     table(class="table")
+      thead
+       tr
+        th Select
+        th Physical Account
+      tbody
+       - each account in account_array
+        tr
+         td
+          input(id = account.id, type="radio", name="account", value=account.id)
+          td #{account.name}
+     button(
+        type='submit'
+        value="Edit Account"
+        class="btn btn-lg btn-primary"
+        label="Edit Account"
+      ) Rename
+    br
+    p Or add a new physical account:
+    a(class='btn btn-lg btn-primary' href='/createphysicalaccount') Create New

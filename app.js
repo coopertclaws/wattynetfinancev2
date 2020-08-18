@@ -14,6 +14,7 @@ var logger = require('morgan');
 // content and form routes
 var indexRouter = require('./routes/index');
 var createVirtualAccountRouter = require('./routes/createvirtualaccount');
+var createPhysicalAccountRouter = require('./routes/createphysicalaccount');
 
 // api routes
 var usersRouter = require('./routes/api/users');
@@ -84,11 +85,12 @@ app.use((req, res, next) => {
 // }));
 
 app.use('/', indexRouter);
-app.use('/createvirtualaccount', createVirtualAccountRouter);
+app.use('/createvirtualaccount', oidc.ensureAuthenticated(), createVirtualAccountRouter);
+app.use('/createphysicalaccount', oidc.ensureAuthenticated(), createPhysicalAccountRouter);
 
 app.use('/api/users', oidc.ensureAuthenticated(), usersRouter);
 app.use('/api/user', userRouter);
-app.use('/api/physicalaccount', physicalAccountRouter);
+app.use('/api/physicalaccount', oidc.ensureAuthenticated(), physicalAccountRouter);
 app.use('/api/virtualAccount', oidc.ensureAuthenticated(), virtualAccountRouter);
 
 // app.use('/registration', registrationRouter);
