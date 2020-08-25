@@ -182,3 +182,20 @@ exports.getAllVirtualAccounts = function(req, res, next) {
     });
 };
 
+exports.makePayment = function(req, res, next) {
+    //console.log("INSERT INTO transactions (user, virtual_account, tofrom, amount, desc) VALUES ((SELECT id FROM user WHERE email = '" + req.userContext.userinfo.preferred_username + "'), '" + req.body.virtual_account_id + "', '" + req.body.physical_account_id + "', '" + req.body.amount + "', '" + req.body.desc + "')");
+    var results = db.query("INSERT INTO transactions (user, virtual_account, tofrom, amount, description) VALUES ((SELECT id FROM user WHERE email = '" + req.userContext.userinfo.preferred_username + "'), '" + req.body.virtual_account_id + "', '" + req.body.physical_account_id + "', '" + req.body.amount + "', '" + req.body.desc + "')", function (error, results, fields) {
+        if (error) {
+            next(null,{
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retrieved",
+            data: results
+        }, null);
+    });
+};

@@ -1,0 +1,42 @@
+extends layout
+
+block content
+  h1= title
+  br
+
+  form(action="/api/payment" method="POST" class="form-registration")
+    label(for="virtualaccount") Which (virtual) account do you want to make a payment from?
+      select(bankacc='dropDown', id='virtual_account_id', class='form-control', name='virtual_account_id')
+        each account in virtual_account
+          option(value=account.id) #{account.name}
+
+    label(for="amount") How much have you spend?
+    input(
+      type="number"
+      step="any"
+      id="amount"
+      name="amount"
+      class="form-control"
+      value=0
+    )
+
+    label(for="physicalaccount") Which actual account / card did you spend on?
+      select(bankacc='dropDown', id='physical_account_id', class='form-control', name='physical_account_id')
+        each account in physical_account
+          option(value=account.id) #{account.name}
+
+    label(for="desc") Enter a description if it helps (or just leave as default):
+    input(
+      type="text"
+      id="desc"
+      name="desc"
+      class="form-control"
+      value="stuff"
+    )
+
+    input(
+      type="submit"
+      value="Submit"
+      class="btn btn-lg btn-primary btn-block"
+    )
+

@@ -69,8 +69,7 @@ router.post('/', function(req, res, next) {
         else {
             console.log('1st middleware executed');
             next();
-            // res.send(data);
-            // res.redirect('virtualaccount');
+
         }
     })
 
@@ -87,20 +86,6 @@ router.post('/', function(req, res, next) {
         })
     }   
 );
-
-// router.post('/', function(req, res) {
-//     query.validatePhysicalAccount(req, res, function(data, error) {
-//         if(error) {
-//             res.send('Something Broke!');
-//         }
-//         else {
-//             console.log('1st middleware executed');
-//             // res.send(data);
-//             // res.redirect('virtualaccount');
-//         }
-//     })
-
-// });
 
 router.put('/', function(req, res) {
     console.log('PUT request called');
