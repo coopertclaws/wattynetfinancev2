@@ -5,6 +5,7 @@ var query = require('../../controllers/dbquery');
 const session = require('express-session');
 const { ExpressOIDC } = require('@okta/oidc-middleware');
 const okta = require("@okta/okta-sdk-nodejs");
+const {check, validationResult} = require('express-validator');
 
 router.use(methodOverride('_method'));
 
@@ -55,29 +56,57 @@ router.get('/', function(req, res) {
 });
 
 
-router.post('/', function(req, res) {
-    query.createPhysicalAccount(req, res, function(data, error) {
-        if(error) {
-            res.send('Something Broke!');
-        }
-        else {
-            res.redirect('physicalaccount');
-        }
-    })
-
+router.post('/', [
+    check('name')
+    .not()
+    .isEmpty()
+    .withMessage('Name is Required')
+    .isAlphanumeric()
+    .withMessage('No special characters allowed')
+], function(req, res) {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        // return res.status(422).json({ errors: errors.array() })
+        res.render('error', { error_array: errors.errors[0]});
+        console.log(errors.errors[0].msg);
+    } else {
+    
+        query.createPhysicalAccount(req, res, function(data, error) {
+            if(error) {
+                res.send('Something Broke!');
+            }
+            else {
+                res.redirect('physicalaccount');
+            }
+        })
+    }
 });
 
-router.put('/', function(req, res) {
-    query.updatePhysicalAccount(req, res, function(data, error) {
-        if(error) {
-            res.send('Something Broke!');
-        }
-        else {
-            // res.send(data.data[0].name);
-            res.redirect('physicalaccount');
-        }
-    })
 
+router.put('/', [
+    check('name')
+    .not()
+    .isEmpty()
+    .withMessage('Name is Required')
+    .isAlphanumeric()
+    .withMessage('No special characters allowed')
+], function(req, res) {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        // return res.status(422).json({ errors: errors.array() })
+        res.render('error', { error_array: errors.errors[0]});
+        console.log(errors.errors[0].msg);
+    } else {
+        query.updatePhysicalAccount(req, res, function(data, error) {
+            if(error) {
+                res.send('Something Broke!');
+            }
+            else {
+                // res.send(data.data[0].name);
+                res.redirect('physicalaccount');
+            }
+        })
+    }
 });
 
 
