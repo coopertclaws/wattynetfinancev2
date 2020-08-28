@@ -1,0 +1,35 @@
+extends layout
+
+block content
+
+    h1 #{title}
+ 
+    form(action='/api/transaction', method='get')
+     table(class="table")
+      thead
+       tr
+        th Select
+        th Amount (£)
+        th Virtual Account
+        th To / From Physical Account
+        th Date
+        th Description
+      tbody
+       - each transaction in transaction_array
+        tr
+         td
+          input(id = transaction.id, type="radio", name="transaction", value=transaction.id)
+          td #{transaction.amount}
+          td #{transaction.virtual_account_name}
+          td #{transaction.physical_account_name}
+          td #{transaction.timestamp}
+          td #{transaction.description}
+     button(
+        type='submit'
+        value="Edit Transaction"
+        class="btn btn-lg btn-primary"
+        label="Edit Account"
+      ) Edit
+    br
+    p Or add a new account:
+    a(class='btn btn-lg btn-primary' href='/createvirtualaccount') Create New

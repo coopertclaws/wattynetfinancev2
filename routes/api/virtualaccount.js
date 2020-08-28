@@ -62,6 +62,7 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(req, res, next) {
+    // Check that the logged in user has access to the physical account that has been passed in the request body
     query.validatePhysicalAccount(req, res, function(data, error) {
         if(error) {
             res.send('Something Broke!');
@@ -74,12 +75,13 @@ router.post('/', function(req, res, next) {
     })
 
     }, function(req, res) {
+        // Create the virtual account
         query.createVirtualAccount(req, res, function(data, error) {
             if(error) {
                 res.send('Something Broke!');
             }
             else {
-                console.log('2nd middleware executed');
+                // console.log('2nd middleware executed');
                 // res.send(data);
                 res.redirect('virtualaccount');
             }

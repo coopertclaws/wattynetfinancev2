@@ -16,6 +16,7 @@ var indexRouter = require('./routes/index');
 var createVirtualAccountRouter = require('./routes/createvirtualaccount');
 var createPhysicalAccountRouter = require('./routes/createphysicalaccount');
 var createPaymentRouter = require('./routes/createPayment');
+var createDepositRouter = require('./routes/createDeposit');
 
 // api routes
 var usersRouter = require('./routes/api/users');
@@ -23,7 +24,8 @@ var userRouter = require('./routes/api/user');
 var physicalAccountRouter = require('./routes/api/physicalaccount');
 var virtualAccountRouter = require('./routes/api/virtualaccount');
 var paymentRouter = require('./routes/api/payment');
-
+var depositRouter = require('./routes/api/deposit');
+var transactionRouter = require('./routes/api/transaction');
 
 // var registrationRouter = require('./routes/registration');
 // var productRouter = require('./routes/product');
@@ -90,12 +92,15 @@ app.use('/', indexRouter);
 app.use('/createvirtualaccount', oidc.ensureAuthenticated(), createVirtualAccountRouter);
 app.use('/createphysicalaccount', oidc.ensureAuthenticated(), createPhysicalAccountRouter);
 app.use('/createPayment', oidc.ensureAuthenticated(), createPaymentRouter);
+app.use('/createDeposit', oidc.ensureAuthenticated(), createDepositRouter);
 
 app.use('/api/users', oidc.ensureAuthenticated(), usersRouter);
 app.use('/api/user', userRouter);
 app.use('/api/physicalaccount', oidc.ensureAuthenticated(), physicalAccountRouter);
 app.use('/api/virtualAccount', oidc.ensureAuthenticated(), virtualAccountRouter);
 app.use('/api/payment', oidc.ensureAuthenticated(), paymentRouter);
+app.use('/api/deposit', oidc.ensureAuthenticated(), depositRouter);
+app.use('/api/transaction', oidc.ensureAuthenticated(), transactionRouter);
 
 // app.use('/registration', registrationRouter);
 // app.use('/create', registrationRouter);

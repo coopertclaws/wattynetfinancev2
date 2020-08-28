@@ -4,13 +4,13 @@ block content
   h1= title
   br
 
-  form(action="/api/payment" method="POST" class="form-registration")
-    label(for="virtualaccount") Which (virtual) account do you want to make a payment from?
+  form(action="/api/deposit" method="POST" class="form-registration")
+    label(for="virtualaccount") Which (virtual) account do you want to add money to?
       select(bankacc='dropDown', id='virtual_account_id', class='form-control', name='virtual_account_id')
         each account in virtual_account
           option(value=account.id) #{account.name}
 
-    label(for="amount") How much have you spent?
+    label(for="amount") How much do you want to deposit?
     input(
       type="number"
       step="any"
@@ -20,7 +20,7 @@ block content
       value=0
     )
 
-    label(for="physicalaccount") Which actual account / card did you spend on?
+    label(for="physicalaccount") Which actual account / card are you adding money from?
       select(bankacc='dropDown', id='physical_account_id', class='form-control', name='physical_account_id')
         each account in physical_account
           option(value=account.id) #{account.name}

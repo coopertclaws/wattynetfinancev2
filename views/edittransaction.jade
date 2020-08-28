@@ -1,0 +1,50 @@
+extends layout
+
+block content
+  h1= title
+  br
+  p.form-registration Date/Time: #{transaction_array.timestamp}
+  p.form-registration Amount: £#{transaction_array.amount}
+  p.form-registration Virtual Account: #{transaction_array.virtual_account_name}
+  p.form-registration To/From which physical account: #{transaction_array.physical_account_name}
+  p.form-registration Description: #{transaction_array.description}
+
+  form(action="/api/transaction?_method=PUT" method="POST" class="form-registration")
+    //- label(for="_method")
+    //- input(
+    //-   type="hidden"
+    //-   name="_method"
+    //-   value="PUT"
+    //- )
+    label(for="amount") Change Amount:
+    input(
+      type="number"
+      step="any"
+      id="amount"
+      name="amount"
+      class="form-control"
+      value=transaction_array.amount
+    )
+
+    label(for="name") Change Description:
+    input(
+      type="text"
+      id="description"
+      name="description"
+      class="form-control"
+      value=transaction_array.description
+    )
+
+    label(for="id")
+    input(
+      type="hidden"
+      id="id"
+      name="id"
+      value=transaction_array.id
+    )
+
+    input(
+      type="submit"
+      value="Update Settings"
+      class="btn btn-lg btn-primary btn-block"
+    )

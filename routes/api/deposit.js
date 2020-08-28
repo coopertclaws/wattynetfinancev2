@@ -37,7 +37,7 @@ router.post('/', [
         console.log(errors.errors[0].msg);
     } else {
     
-        query.makePayment(req, res, function(data, error) {
+        query.makeDeposit(req, res, function(data, error) {
             if(error) {
                 res.send('Something Broke!');
             }
@@ -57,7 +57,7 @@ router.post('/', [
     })
 });
 
-// Not set up for payments yet!!!
+// Not set up for deposits yet!!!
 router.put('/', [
     check('name')
     .not()
