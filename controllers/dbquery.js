@@ -223,7 +223,7 @@ exports.makeDeposit = function(req, res, next) {
 };
 
 exports.updateBalance = function(req, res, next) {
-    //console.log("UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT SUM(amount) AS balance FROM transactions WHERE virtual_account = '" + req.body.virtual_account_id + "')) WHERE id = '" + req.body.virtual_account_id + "'");
+    console.log("UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT SUM(amount) AS balance FROM transactions WHERE virtual_account = '" + req.body.virtual_account_id + "')) WHERE id = '" + req.body.virtual_account_id + "'");
     var results = db.query("UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT SUM(amount) AS balance FROM transactions WHERE virtual_account = '" + req.body.virtual_account_id + "')) WHERE id = '" + req.body.virtual_account_id + "'", function(error, results, fields) {
         if (error) {
             next(null, {
@@ -258,7 +258,7 @@ exports.getAllTransactions = function(req, res, next) {
 };
 
 exports.getTransaction = function(req, res, next) {
-    var results = db.query("SELECT transactions.id, transactions.timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE (transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') AND transactions.id = '" + req.query.transaction + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
+    var results = db.query("SELECT transactions.id, transactions.timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name, transactions.virtual_account AS virtual_account_id FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE (transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') AND transactions.id = '" + req.query.transaction + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
         if (error) {
             next(null, {
                 status: "error",

@@ -79,6 +79,7 @@ router.put('/', [
                 res.send('Something Broke!');
             }
             else {
+                console.log(data.data);
                 next();
             }
         })
@@ -89,6 +90,7 @@ router.put('/', [
             res.send('Something Broke!');
         }
         else {
+            console.log('Transaction updated?');
             res.redirect('transaction');
         }
     })

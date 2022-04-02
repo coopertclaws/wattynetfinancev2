@@ -6,6 +6,7 @@ block content
   p.form-registration Date/Time: #{transaction_array.timestamp}
   p.form-registration Amount: £#{transaction_array.amount}
   p.form-registration Virtual Account: #{transaction_array.virtual_account_name}
+  p.form-registration Virtual Account ID: #{transaction_array.virtual_account_id}
   p.form-registration To/From which physical account: #{transaction_array.physical_account_name}
   p.form-registration Description: #{transaction_array.description}
 
@@ -41,6 +42,14 @@ block content
       id="id"
       name="id"
       value=transaction_array.id
+    )
+
+    label(for="virtual_account_id")
+    input(
+      type="hidden"
+      id="virtual_account_id"
+      name="virtual_account_id"
+      value=transaction_array.virtual_account_id
     )
 
     input(

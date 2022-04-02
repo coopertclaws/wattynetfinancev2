@@ -52,6 +52,7 @@ router.post('/', [
             res.send('Something Broke!');
         }
         else {
+            console.log(data.data);
             res.redirect('transaction');
         }
     })
