@@ -1,0 +1,30 @@
+extends layout
+
+block content
+
+    
+    h1 #{title}
+    table(class="table")
+     thead
+      tr
+       th Description
+       th Amount
+       th Savings Pot
+       th Real Account
+       th Transfer
+       th Real Account
+     tbody
+      - each transfer in transfers_array
+       tr
+        td #{transfer.description}
+        td #{transfer.amount}
+        td #{transfer.virtual_account_name}
+        td #{transfer.real_from}
+        td
+         if transfer.amount > 0
+          img(src="/images/arrow-left.svg" width="64" height="32")
+         else
+          img(src="/images/arrow-right.svg" width="64" height="32")
+        td #{transfer.real_to}
+    br
+

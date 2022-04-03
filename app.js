@@ -26,6 +26,7 @@ var virtualAccountRouter = require('./routes/api/virtualaccount');
 var paymentRouter = require('./routes/api/payment');
 var depositRouter = require('./routes/api/deposit');
 var transactionRouter = require('./routes/api/transaction');
+var transfersToDoRouter = require('./routes/api/transferstodo');
 
 // var registrationRouter = require('./routes/registration');
 // var productRouter = require('./routes/product');
@@ -101,6 +102,7 @@ app.use('/api/virtualAccount', oidc.ensureAuthenticated(), virtualAccountRouter)
 app.use('/api/payment', oidc.ensureAuthenticated(), paymentRouter);
 app.use('/api/deposit', oidc.ensureAuthenticated(), depositRouter);
 app.use('/api/transaction', oidc.ensureAuthenticated(), transactionRouter);
+app.use('/api/transferstodo', oidc.ensureAuthenticated(), transfersToDoRouter);
 
 // app.use('/registration', registrationRouter);
 // app.use('/create', registrationRouter);

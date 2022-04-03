@@ -275,8 +275,8 @@ exports.getTransaction = function(req, res, next) {
 };
 
 exports.updateTransaction = function(req, res, next) {
-    console.log('update transaction controller called');
-    console.log("UPDATE transactions SET amount = '" + req.body.amount + "', description = '" + req.body.description + "' WHERE transaction.id = " + req.body.id + " AND user = (SELECT id from user WHERE email='" + req.userContext.userinfo.preferred_username + "')");
+//    console.log('update transaction controller called');
+//    console.log("UPDATE transactions SET amount = '" + req.body.amount + "', description = '" + req.body.description + "' WHERE transaction.id = " + req.body.id + " AND user = (SELECT id from user WHERE email='" + req.userContext.userinfo.preferred_username + "')");
     var results = db.query("UPDATE transactions SET amount = '" + req.body.amount + "', description = '" + req.body.description + "' WHERE transactions.id = " + req.body.id + " AND user = (SELECT id from user WHERE email='" + req.userContext.userinfo.preferred_username + "')", function (error, results, fields) {
         if (error) {
             next(null,{
@@ -288,6 +288,24 @@ exports.updateTransaction = function(req, res, next) {
         next({
             status: "success",
             message: "data retrieved",
+            data: results
+        }, null);
+    });
+};
+
+exports.transfersToDo = function(req, res, next) {
+    var results = db.query("SELECT transactions.timestamp, transactions.amount, transactions.description, transactions.virtual_account, virtual_account.name AS virtual_account_name, virtual_account.physical_account AS from_physical_account_name, transactions.tofrom AS to_physical_account_name, pseudo1.name AS real_from, pseudo2.name AS real_to FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account pseudo1 ON pseudo1.id = virtual_account.physical_account INNER JOIN physical_account pseudo2 ON pseudo2.id = transactions.tofrom WHERE ((transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "')) AND (DATE(timestamp) = CURDATE())) ORDER BY TIMESTAMP DESC", function(error, results, fields) {
+        console.log(results[0]);
+        if (error) {
+            next(null, {
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retreived",
             data: results
         }, null);
     });
