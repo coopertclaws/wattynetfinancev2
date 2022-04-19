@@ -1,5 +1,10 @@
 // DB Connection
 var db = require('../database');
+var fs = require('fs');
+var csv = require('fast-csv');
+var path = require('path');
+var multer = require('multer');
+var moment = require('moment');
 
 exports.getAllUsers = function(req,res) {
     var results = db.query('SELECT * FROM user', function (error, results, fields) {
@@ -310,3 +315,86 @@ exports.transfersToDo = function(req, res, next) {
         }, null);
     });
 };
+
+exports.uploadFile = function(req, res, next) {
+    let filePath = './uploads/' + req.file.filename;
+    let stream = fs.createReadStream(filePath);
+    let csvData = [];
+    let csvStream = csv
+        .parse()
+        .on("data", function (data) {
+            if(moment(data[0], "DD/MM/YYYY", true).isValid()) {
+                // console.log('Valid date:: ' + moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
+                data[0] = (moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
+                csvData.push(data);
+            } else {
+                // console.log('invalid date, ignoring');
+            }
+            // csvData.push(data);
+        })
+        .on("end", function () {
+            let query = 'INSERT INTO temp_upload (date, description, amount) VALUES ?';
+            db.query(query, [csvData], (error, response) => {
+                console.log(error || response);
+            });
+
+            fs.unlinkSync(filePath)
+
+            next({
+                status: "success",
+                message: "data retreived",
+                // data: results
+            }, null);
+        });
+
+    stream.pipe(csvStream);
+
+};
+
+exports.deleteFile = function(req, res, next) {
+    //console.log(req.query);
+    var results = db.query("TRUNCATE TABLE temp_upload", function (error, results, fields) {
+        res.locals.results = results;
+        if (error) {
+            next(null,{
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retrieved",
+            data: results
+        }, null);
+    });
+  
+};
+
+// exports.uploadFile = function(req, res, next) {
+//     let filePath = './uploads/' + req.file.filename;
+//     let stream = fs.createReadStream(filePath);
+//     let csvData = [];
+//     let csvStream = csv
+//         .parse()
+//         .on("data", function (data) {
+//             csvData.push(data);
+//         })
+//         .on("end", function () {
+//             let query = 'INSERT INTO customer (address, age, name) VALUES ?';
+//             db.query(query, [csvData], (error, response) => {
+//                 console.log(error || response);
+//             });
+
+//             fs.unlinkSync(filePath)
+
+//             next({
+//                 status: "success",
+//                 message: "data retreived",
+//                 // data: results
+//             }, null);
+//         });
+
+//     stream.pipe(csvStream);
+
+// };

@@ -1,0 +1,14 @@
+extends layout
+
+block content
+
+    h1 #{title}
+
+    form(action='/api/uploadfile' enctype='multipart/form-data' method='post')
+     input(type="file" name="uploadfile" accept='csv')
+     p
+     input(type="radio" id=filetype name="filetype" value=1)
+     | &nbsp; Amazon Mastercard
+     p
+     input(type="submit" value="Upload CSV" class="btn btn-primary")
+    br

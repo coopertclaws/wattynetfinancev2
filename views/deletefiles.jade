@@ -1,0 +1,11 @@
+extends layout
+
+block content
+
+    h1 #{title}
+
+    form(action='/api/deletefile' enctype='multipart/form-data' method='post')
+     | &nbsp; Delete temporary file
+     p
+     input(type="submit" value="Delete File" class="btn btn-primary")
+    br

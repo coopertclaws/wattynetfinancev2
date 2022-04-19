@@ -35,7 +35,7 @@ router.get('/', function(req, res) {
                 res.send('Something Broke!');
             }
             else {
-                console.log(data.data);
+                // console.log(data.data);
                 res.render('editvirtualaccount', { title: 'Edit Virtual Account Information',
                                                         account_array: data.data[0]
                                                     });
@@ -44,14 +44,14 @@ router.get('/', function(req, res) {
 
 
     } else {
-        console.log('no query string');
+        // console.log('no query string');
 
         query.getAllVirtualAccounts(req, res, function(data, error) {
             if(error) {
                 res.send('Something Broke!');
             }
             else {
-                console.log(data);
+                // console.log(data);
                 res.render('displayallvirtualaccounts', { title: 'Virtual Accounts',
                                                     account_array: data.data
                                                 });
