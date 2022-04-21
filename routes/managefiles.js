@@ -20,14 +20,13 @@ router.use((req, res, next) => {
     });
 });
 
-// router.get('/'), function(req, res) {
-//     console.log('managefiles route called');
-//     res.render('manageuploads', { title: 'Manage Uploads'});
 
-// };
 
-router.get('/', function(req, res, next) {
-    res.render('manageuploads', { title: 'Manage Uploads' });
-  });
+
+
+
+// router.get('/', function(req, res, next) {
+//     res.render('manageuploads', { title: 'Manage Uploads' });
+//   });
   
 module.exports = router;

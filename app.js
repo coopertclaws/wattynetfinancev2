@@ -37,6 +37,8 @@ var transactionRouter = require('./routes/api/transaction');
 var transfersToDoRouter = require('./routes/api/transferstodo');
 var uploadFileRouter = require('./routes/api/uploadfile');
 var deleteFileAPIRouter = require('./routes/api/deletefile');
+var manageUploadsAPIRouter = require('./routes/api/manageuploads');
+var updateTempUploadRouter = require('./routes/api/updatetempupload');
 
 // var registrationRouter = require('./routes/registration');
 // var productRouter = require('./routes/product');
@@ -134,6 +136,8 @@ app.use('/api/transaction', oidc.ensureAuthenticated(), transactionRouter);
 app.use('/api/transferstodo', oidc.ensureAuthenticated(), transfersToDoRouter);
 app.use('/api/uploadfile', oidc.ensureAuthenticated(), uploadFileRouter);
 app.use('/api/deletefile', oidc.ensureAuthenticated(), deleteFileAPIRouter);
+app.use('/api/manageuploads', oidc.ensureAuthenticated(), manageUploadsAPIRouter);
+app.use('/api/updatetempupload', oidc.ensureAuthenticated(), updateTempUploadRouter);
 
 // app.use('/registration', registrationRouter);
 // app.use('/create', registrationRouter);

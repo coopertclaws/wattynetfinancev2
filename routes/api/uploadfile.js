@@ -55,9 +55,10 @@ router.post('/', upload.single("uploadfile"), function(req, res) {
     }
     else {
       console.log (data.data);
-      res.render('displayuploadsuccess', { title: 'Upload Success',
-                                              // transfers_array: data.data
-                                          });
+      res.redirect('manageuploads');
+      // res.render('displayuploadsuccess', { title: 'Upload Success',
+      //                                         // transfers_array: data.data
+      //                                     });
     }
 
   })

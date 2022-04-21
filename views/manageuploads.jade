@@ -12,3 +12,8 @@ block content
      p
      input(type="submit" value="Upload CSV" class="btn btn-primary")
     br
+    | Or delete upload file
+    form(action='/api/deletefile' enctype='multipart/form-data' method='post')
+     p
+     input(type="submit" value="Delete File" class="btn btn-primary")
+    br

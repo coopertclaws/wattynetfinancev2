@@ -20,8 +20,23 @@ router.use((req, res, next) => {
     });
 });
 
-router.get('/', function(req, res, next) {
-    res.render('deletefiles', { title: 'Delete Files' });
-  });
+router.get('/', function(req, res) {
+  query.getAllPhysicalAccounts(req, res, function(data, error) {
+      if(error) {
+          res.send('Something Broke!');
+      }
+      else {
+          // console.log(data.data);
+          res.render('deletefiles', { title: 'Upload and Delete Files', account_array: data.data
+          });
+      }
+  })
+
+});
+
+
+// router.get('/', function(req, res, next) {
+//     res.render('deletefiles', { title: 'Upload and Delete Files' });
+//   });
   
 module.exports = router;

@@ -3,9 +3,19 @@ extends layout
 block content
 
     h1 #{title}
-
+ 
+    form(action='/api/uploadfile' enctype='multipart/form-data' method='post')
+     input(type="file" name="uploadfile" accept='csv' class="btn btn-primary")
+     p
+     label(for="account") Select Parent (Real) Account:
+      select(bankacc='dropDown', id='account_id', class='form-control', name='account_id')
+        each account in account_array
+          option(value=account.id) #{account.name}
+     p
+     input(type="submit" value="Upload File" class="btn btn-primary")
+    br
+    | Or delete upload file
     form(action='/api/deletefile' enctype='multipart/form-data' method='post')
-     | &nbsp; Delete temporary file
      p
      input(type="submit" value="Delete File" class="btn btn-primary")
     br
