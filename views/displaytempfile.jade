@@ -1,0 +1,48 @@
+extends layout
+
+block content
+
+    h1 #{title}
+
+    form(action='/api/updatetempupload', method='post')
+     table(class="table")
+      thead
+       tr
+        th Delete
+        th Paid on
+        th Date
+        th Description
+        th Amount
+        th Pot
+        th Update Pot
+      tbody
+       - each temp_data in temp_data_array
+        tr
+          td
+            input(id = temp_data.id, type="checkbox", name="delete_entry", value=temp_data.id)
+          td #{temp_data.real_name}
+          td #{temp_data.date}
+          td #{temp_data.description}
+          td #{temp_data.amount}
+          td #{temp_data.name}
+          td 
+            label(for="account")
+              select(bankacc='dropDown', id='account_id', class='form-control', name='#{temp_data.id}')
+                each lov in lov_array
+                  if lov.id==temp_data.pot
+                    option(selected value=lov.id) #{lov.name}
+                  else 
+                    option(value=lov.id) #{lov.name}
+                  
+     button(
+        type='submit'
+        value="Edit Transaction"
+        class="btn btn-lg btn-primary"
+        label="Submit Updates"
+      ) Submit Updates
+    br
+    | Update main transaction log when done:
+    form(action='/api/updatetransactionlog' enctype='multipart/form-data' method='post')
+     p
+     input(type="submit" value="Update Transaction Log" class="btn btn-primary")
+    br

@@ -1,5 +1,10 @@
 // DB Connection
 var db = require('../database');
+var fs = require('fs');
+var csv = require('fast-csv');
+var path = require('path');
+var multer = require('multer');
+var moment = require('moment');
 
 exports.getAllUsers = function(req,res) {
     var results = db.query('SELECT * FROM user', function (error, results, fields) {
@@ -14,7 +19,7 @@ exports.getUser = function(req, res, next) {
 };
 
 exports.getAllPhysicalAccounts = function(req, res, next) {
-        console.log('controller called');
+        // console.log('controller called');
         // var results = db.query('SELECT * from physical_account', function(error, results, fields) {
         var results = db.query("SELECT physical_account.id, physical_account.name FROM physical_account INNER JOIN user ON user.id = physical_account.user WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'", function(error, results, fields) {
         if (error) {
@@ -33,7 +38,7 @@ exports.getAllPhysicalAccounts = function(req, res, next) {
 };
 
 exports.getPhysicalAccount = function(req, res, next) {
-    console.log(req.query);
+    // console.log(req.query);
     var results = db.query("SELECT physical_account.id, physical_account.name FROM physical_account INNER JOIN user ON user.id = physical_account.user WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'" + " AND physical_account.id = " + req.query.account, function (error, results, fields) {
         res.locals.results = results;
         if (error) {
@@ -53,7 +58,7 @@ exports.getPhysicalAccount = function(req, res, next) {
 };
 
 exports.createPhysicalAccount = function(req, res, next) {
-    console.log("INSERT INTO physical_account (user, name) VALUES ('" + req.userContext.userinfo.preferred_username + "', " + "'" + req.body.name + "')");
+    // console.log("INSERT INTO physical_account (user, name) VALUES ('" + req.userContext.userinfo.preferred_username + "', " + "'" + req.body.name + "')");
     var results = db.query("INSERT INTO physical_account (user, name) VALUES ((SELECT id FROM user WHERE email ='" + req.userContext.userinfo.preferred_username + "'), " + "'" + req.body.name + "')", function (error, results, fields) {
         if (error) {
             next(null,{
@@ -127,7 +132,7 @@ exports.createVirtualAccount = function(req, res, next) {
 };
 
 exports.updateVirtualAccount = function(req, res, next) {
-    console.log('update account controller called');
+    // console.log('update account controller called');
     var results = db.query("UPDATE virtual_account INNER JOIN user ON user.id = virtual_account.user SET virtual_account.amount = '" + req.body.amount + "', virtual_account.name = '" + req.body.name + "' WHERE (virtual_account.id = " + req.body.id + " AND user.email='" + req.userContext.userinfo.preferred_username + "')", function (error, results, fields) {
         if (error) {
             next(null,{
@@ -146,7 +151,7 @@ exports.updateVirtualAccount = function(req, res, next) {
 
 
 exports.getVirtualAccount = function(req, res, next) {
-    console.log(req.query);
+    // console.log(req.query);
     var results = db.query("SELECT virtual_account.id, virtual_account.amount, virtual_account.current_balance, virtual_account.name, virtual_account.starting_balance, physical_account.name AS real_account FROM virtual_account INNER JOIN user ON user.id = virtual_account.user INNER JOIN physical_account ON physical_account.id = virtual_account.physical_account WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'" + " AND virtual_account.id = " + req.query.account, function (error, results, fields) {
         res.locals.results = results;
         if (error) {
@@ -167,6 +172,7 @@ exports.getVirtualAccount = function(req, res, next) {
 
 exports.getAllVirtualAccounts = function(req, res, next) {
     var results = db.query("SELECT virtual_account.id, virtual_account.name, virtual_account.current_balance, virtual_account.amount, virtual_account.starting_balance, physical_account.name AS real_account FROM virtual_account INNER JOIN user ON user.id = virtual_account.user INNER JOIN physical_account ON physical_account.id = virtual_account.physical_account WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'", function(error, results, fields) {
+        // console.log(results);
         if (error) {
             next(null, {
                 status: "error",
@@ -223,7 +229,8 @@ exports.makeDeposit = function(req, res, next) {
 };
 
 exports.updateBalance = function(req, res, next) {
-    console.log("UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT SUM(amount) AS balance FROM transactions WHERE virtual_account = '" + req.body.virtual_account_id + "')) WHERE id = '" + req.body.virtual_account_id + "'");
+    // console.log("UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT SUM(amount) AS balance FROM transactions WHERE virtual_account = '" + req.body.virtual_account_id + "')) WHERE id = '" + req.body.virtual_account_id + "'");
+    console.log('Update Balance query called');
     var results = db.query("UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT SUM(amount) AS balance FROM transactions WHERE virtual_account = '" + req.body.virtual_account_id + "')) WHERE id = '" + req.body.virtual_account_id + "'", function(error, results, fields) {
         if (error) {
             next(null, {
@@ -240,8 +247,33 @@ exports.updateBalance = function(req, res, next) {
     });
 };
 
+
+
+
+exports.updateAllBalances = function(req, res, next) {
+
+    // console.log('This is the controller function to do the updating');
+
+    const myArray = res.locals.virtual_accounts;
+    myArray.forEach(function (arrayItem) {
+
+        let query = "UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT IFNULL(SUM(amount),0) AS balance FROM transactions WHERE virtual_account = '" + arrayItem.id + "')) WHERE id = '" + arrayItem.id + "'";
+
+            setTimeout(function(){
+                db.query(query, (error, response) => {
+                    // console.log(error || response);
+                });
+            }, 100)
+
+    });
+
+
+    next();
+}
+
+
 exports.getAllTransactions = function(req, res, next) {
-    var results = db.query("SELECT transactions.id, transactions.timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
+    var results = db.query("SELECT transactions.id, DATE_FORMAT(transactions.timestamp, \"%Y-%m-%d\") AS timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
         if (error) {
             next(null, {
                 status: "error",
@@ -256,6 +288,23 @@ exports.getAllTransactions = function(req, res, next) {
         }, null);
     });
 };
+
+// exports.getAllTransactions = function(req, res, next) {
+//     var results = db.query("SELECT transactions.id, transactions.timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
+//         if (error) {
+//             next(null, {
+//                 status: "error",
+//                 message: error
+//             });
+//         }
+
+//         next({
+//             status: "success",
+//             message: "data retreived",
+//             data: results
+//         }, null);
+//     });
+// };
 
 exports.getTransaction = function(req, res, next) {
     var results = db.query("SELECT transactions.id, transactions.timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name, transactions.virtual_account AS virtual_account_id FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE (transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') AND transactions.id = '" + req.query.transaction + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
@@ -273,6 +322,9 @@ exports.getTransaction = function(req, res, next) {
         }, null);
     });
 };
+
+
+
 
 exports.updateTransaction = function(req, res, next) {
 //    console.log('update transaction controller called');
@@ -294,8 +346,8 @@ exports.updateTransaction = function(req, res, next) {
 };
 
 exports.transfersToDo = function(req, res, next) {
-    var results = db.query("SELECT transactions.timestamp, transactions.amount, transactions.description, transactions.virtual_account, virtual_account.name AS virtual_account_name, virtual_account.physical_account AS from_physical_account_name, transactions.tofrom AS to_physical_account_name, pseudo1.name AS real_from, pseudo2.name AS real_to FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account pseudo1 ON pseudo1.id = virtual_account.physical_account INNER JOIN physical_account pseudo2 ON pseudo2.id = transactions.tofrom WHERE ((transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "')) AND (DATE(timestamp) = CURDATE())) ORDER BY TIMESTAMP DESC", function(error, results, fields) {
-        console.log(results[0]);
+    var results = db.query("SELECT CONCAT (virtual_account.physical_account, '_', transactions.tofrom) AS group1, real_src.name AS src_real_acct, real_target.name AS target_real_acct, SUM(transactions.amount) AS total FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account AS real_target ON real_target.id = transactions.tofrom INNER JOIN physical_account AS real_src ON real_src.id = virtual_account.physical_account WHERE ((transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "')) AND (DATE(timestamp) = CURDATE())) GROUP BY group1", function(error, results, fields) {
+        // console.log(results[0]);
         if (error) {
             next(null, {
                 status: "error",
@@ -309,4 +361,205 @@ exports.transfersToDo = function(req, res, next) {
             data: results
         }, null);
     });
+};
+
+// exports.transfersToDo = function(req, res, next) {
+//     var results = db.query("SELECT transactions.timestamp, transactions.amount, transactions.description, transactions.virtual_account, virtual_account.name AS virtual_account_name, virtual_account.physical_account AS from_physical_account_name, transactions.tofrom AS to_physical_account_name, pseudo1.name AS real_from, pseudo2.name AS real_to FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account pseudo1 ON pseudo1.id = virtual_account.physical_account INNER JOIN physical_account pseudo2 ON pseudo2.id = transactions.tofrom WHERE ((transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "')) AND (DATE(timestamp) = CURDATE())) ORDER BY TIMESTAMP DESC", function(error, results, fields) {
+//         // console.log(results[0]);
+//         if (error) {
+//             next(null, {
+//                 status: "error",
+//                 message: error
+//             });
+//         }
+
+//         next({
+//             status: "success",
+//             message: "data retreived",
+//             data: results
+//         }, null);
+//     });
+// };
+
+
+
+
+
+exports.uploadFile = function(req, res, next) {
+    // console.log('Source Account:' + req.body.account_id);
+    let filePath = './uploads/' + req.file.filename;
+    let stream = fs.createReadStream(filePath);
+    let csvData = [];
+    let csvStream = csv
+        .parse()
+        .on("data", function (data) {
+            if(moment(data[0], "DD/MM/YYYY", true).isValid()) {
+                // console.log('Valid date:: ' + moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
+                data[0] = (moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
+                data.push(req.body.account_id);
+                data.push(res.locals.loggedinuser);
+                // console.log('logged in user: ' + res.locals.loggedinuser);
+                // console.log(data);
+                csvData.push(data);
+            } else {
+                // console.log('invalid date, ignoring');
+            }
+            // csvData.push(data);
+        })
+        .on("end", function () {
+            let query = 'INSERT INTO temp_upload (date, description, amount, real_acct, user) VALUES ?';
+            db.query(query, [csvData], (error, response) => {
+                // console.log(error || response);
+            });
+
+            fs.unlinkSync(filePath)
+
+            next({
+                status: "success",
+                message: "data retreived",
+                // data: results
+            }, null);
+        });
+
+    stream.pipe(csvStream);
+
+};
+
+// exports.deleteFile = function(req, res, next) {
+//     //console.log(req.query);
+//     var results = db.query("TRUNCATE TABLE temp_upload", function (error, results, fields) {
+//         res.locals.results = results;
+//         if (error) {
+//             next(null,{
+//                 status: "error",
+//                 message: error
+//             });
+//         }
+
+//         next({
+//             status: "success",
+//             message: "data retrieved",
+//             data: results
+//         }, null);
+//     });
+  
+// };
+
+exports.deleteFile = function(req, res, next) {
+    //console.log(req.query);
+    var results = db.query("DELETE temp_upload FROM temp_upload INNER JOIN user ON user.id = temp_upload.user WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'", function (error, results, fields) {
+        res.locals.results = results;
+        if (error) {
+            next(null,{
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retrieved",
+            data: results
+        }, null);
+    });
+  
+};
+
+exports.getTempFile = function(req, res, next) {
+    var results = db.query("SELECT temp_upload.id, physical_account.name AS real_name, DATE_FORMAT(temp_upload.date, \"%Y-%m-%d\") AS date, temp_upload.description, temp_upload.amount, temp_upload.pot, virtual_account.name FROM temp_upload INNER JOIN virtual_account ON virtual_account.id = temp_upload.pot INNER JOIN physical_account ON physical_account.id = temp_upload.real_acct ORDER BY temp_upload.date DESC", function(error, results, fields) {
+        // console.log(results);
+        if (error) {
+            console.log('error: ' + error);
+            next(null, {
+                status: "error",
+                message: error
+            });
+        }
+        
+        next({
+            status: "success",
+            message: "data retreived",
+            data: results
+        }, null);
+    });
+};
+
+exports.updateTempFile = function(req, res, next) {
+    for (const [key, value] of Object.entries(req.body)) {
+        // console.log('From controller - key: ' + key + ' value: ' + value);
+        let query = "UPDATE temp_upload SET pot ='" + value + "' WHERE id = '" + key + "'";
+            db.query(query, (error, response) => {
+                // console.log(error || response);
+            });
+    };
+    next();
+}
+
+
+exports.updateTransactionLog = function(req, res, next) {
+    //console.log(req.query);
+    var results = db.query("INSERT INTO transactions (user, virtual_account, amount, tofrom, description) SELECT user, pot, -amount, real_acct, description FROM temp_upload", function (error, results, fields) {
+        res.locals.results = results;
+        if (error) {
+            next(null,{
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retrieved",
+            data: results
+        }, null);
+    });
+  
+};
+
+
+
+
+exports.deleteTempFileEntries = function(req, res, next) {
+    // Entries to delete could be string (single entry), array (multiple entries) or empty (nothing to delete)
+    // If array, loop through each.
+    // If string, use input directly (loop would loop through each character of string)
+    // Else, assume empty and go on to next bit
+    if (Array.isArray(req.body.delete_entry)) {
+        for (const value of req.body.delete_entry) {
+            console.log('From controller - value: ' + value);
+            let query = "DELETE FROM temp_upload WHERE id = '" + value + "'";
+                db.query(query, (error, response) => {
+                    // console.log(error || response);
+                });
+        };
+
+    } else if ((typeof req.body.delete_entry) === 'string') {
+        console.log(req.body.delete_entry + 'is type: ' + (typeof req.body.delete_entry));
+        let query = "DELETE FROM temp_upload WHERE id = '" + req.body.delete_entry + "'";
+                db.query(query, (error, response) => {
+                    // console.log(error || response);
+                });
+    }
+
+    next();
+}
+
+exports.getUserByEmail = function(req, res, next) {
+    // console.log(req.query);
+    var results = db.query("SELECT id FROM user WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'", function (error, results, fields) {
+        res.locals.results = results;
+        if (error) {
+            next(null,{
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retrieved",
+            data: results
+        }, null);
+    });
+  
 };

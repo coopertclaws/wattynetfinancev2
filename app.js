@@ -10,6 +10,12 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var bodyparser = require('body-parser');
+var fs = require('fs');
+var csv = require('fast-csv');
+var multer = require('multer');
+
+
 
 // content and form routes
 var indexRouter = require('./routes/index');
@@ -17,6 +23,8 @@ var createVirtualAccountRouter = require('./routes/createvirtualaccount');
 var createPhysicalAccountRouter = require('./routes/createphysicalaccount');
 var createPaymentRouter = require('./routes/createPayment');
 var createDepositRouter = require('./routes/createDeposit');
+var manageFilesRouter = require('./routes/managefiles');
+var deleteFileRouter = require('./routes/deletefile');
 
 // api routes
 var usersRouter = require('./routes/api/users');
@@ -27,6 +35,11 @@ var paymentRouter = require('./routes/api/payment');
 var depositRouter = require('./routes/api/deposit');
 var transactionRouter = require('./routes/api/transaction');
 var transfersToDoRouter = require('./routes/api/transferstodo');
+var uploadFileRouter = require('./routes/api/uploadfile');
+var deleteFileAPIRouter = require('./routes/api/deletefile');
+var manageUploadsAPIRouter = require('./routes/api/manageuploads');
+var updateTempUploadRouter = require('./routes/api/updatetempupload');
+var updateTransactionLogRouter = require('./routes/api/updatetransactionlog');
 
 // var registrationRouter = require('./routes/registration');
 // var productRouter = require('./routes/product');
@@ -47,6 +60,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyparser.json());
+app.use(bodyparser.urlencoded({
+  extended: true
+}));
+
+var storage = multer.diskStorage({
+  destination: (req, file, callBack) => {
+    callBack(null, './uploads/')
+  },
+  filename: (req, file, callBack) => {
+    callBack(null, file,fieldname + '-' + Date.now() + path.extname(file.originalname))
+  }
+})
+
+var upload = multer({
+  storage: storage
+});
 
 app.use(session({
   secret: process.env.SECRET,
@@ -94,6 +124,8 @@ app.use('/createvirtualaccount', oidc.ensureAuthenticated(), createVirtualAccoun
 app.use('/createphysicalaccount', oidc.ensureAuthenticated(), createPhysicalAccountRouter);
 app.use('/createPayment', oidc.ensureAuthenticated(), createPaymentRouter);
 app.use('/createDeposit', oidc.ensureAuthenticated(), createDepositRouter);
+app.use('/managefiles', oidc.ensureAuthenticated(), manageFilesRouter);
+app.use('/deletefile', oidc.ensureAuthenticated(), deleteFileRouter);
 
 app.use('/api/users', oidc.ensureAuthenticated(), usersRouter);
 app.use('/api/user', userRouter);
@@ -103,6 +135,11 @@ app.use('/api/payment', oidc.ensureAuthenticated(), paymentRouter);
 app.use('/api/deposit', oidc.ensureAuthenticated(), depositRouter);
 app.use('/api/transaction', oidc.ensureAuthenticated(), transactionRouter);
 app.use('/api/transferstodo', oidc.ensureAuthenticated(), transfersToDoRouter);
+app.use('/api/uploadfile', oidc.ensureAuthenticated(), uploadFileRouter);
+app.use('/api/deletefile', oidc.ensureAuthenticated(), deleteFileAPIRouter);
+app.use('/api/manageuploads', oidc.ensureAuthenticated(), manageUploadsAPIRouter);
+app.use('/api/updatetempupload', oidc.ensureAuthenticated(), updateTempUploadRouter);
+app.use('/api/updatetransactionlog', oidc.ensureAuthenticated(), updateTransactionLogRouter);
 
 // app.use('/registration', registrationRouter);
 // app.use('/create', registrationRouter);

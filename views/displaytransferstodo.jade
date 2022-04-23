@@ -4,27 +4,24 @@ block content
 
     
     h1 #{title}
+    | This page summarises all transfers based on today's transactions
     table(class="table")
      thead
       tr
-       th Description
-       th Amount
-       th Savings Pot
-       th Real Account
+       th Total
+       th Source Account
        th Transfer
-       th Real Account
+       th Destination Account
      tbody
       - each transfer in transfers_array
        tr
-        td #{transfer.description}
-        td #{transfer.amount}
-        td #{transfer.virtual_account_name}
-        td #{transfer.real_from}
+        td #{transfer.total}
+        td #{transfer.src_real_acct}
         td
-         if transfer.amount > 0
+         if transfer.total > 0
           img(src="/images/arrow-left.svg" width="64" height="32")
          else
           img(src="/images/arrow-right.svg" width="64" height="32")
-        td #{transfer.real_to}
+        td #{transfer.target_real_acct}
     br
 
