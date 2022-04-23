@@ -230,6 +230,7 @@ exports.makeDeposit = function(req, res, next) {
 
 exports.updateBalance = function(req, res, next) {
     // console.log("UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT SUM(amount) AS balance FROM transactions WHERE virtual_account = '" + req.body.virtual_account_id + "')) WHERE id = '" + req.body.virtual_account_id + "'");
+    console.log('Update Balance query called');
     var results = db.query("UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT SUM(amount) AS balance FROM transactions WHERE virtual_account = '" + req.body.virtual_account_id + "')) WHERE id = '" + req.body.virtual_account_id + "'", function(error, results, fields) {
         if (error) {
             next(null, {
@@ -246,8 +247,33 @@ exports.updateBalance = function(req, res, next) {
     });
 };
 
+
+
+
+exports.updateAllBalances = function(req, res, next) {
+
+    // console.log('This is the controller function to do the updating');
+
+    const myArray = res.locals.virtual_accounts;
+    myArray.forEach(function (arrayItem) {
+
+        let query = "UPDATE virtual_account SET current_balance = ((starting_balance) + (SELECT IFNULL(SUM(amount),0) AS balance FROM transactions WHERE virtual_account = '" + arrayItem.id + "')) WHERE id = '" + arrayItem.id + "'";
+
+            setTimeout(function(){
+                db.query(query, (error, response) => {
+                    // console.log(error || response);
+                });
+            }, 100)
+
+    });
+
+
+    next();
+}
+
+
 exports.getAllTransactions = function(req, res, next) {
-    var results = db.query("SELECT transactions.id, transactions.timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
+    var results = db.query("SELECT transactions.id, DATE_FORMAT(transactions.timestamp, \"%Y-%m-%d\") AS timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
         if (error) {
             next(null, {
                 status: "error",
@@ -262,6 +288,23 @@ exports.getAllTransactions = function(req, res, next) {
         }, null);
     });
 };
+
+// exports.getAllTransactions = function(req, res, next) {
+//     var results = db.query("SELECT transactions.id, transactions.timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
+//         if (error) {
+//             next(null, {
+//                 status: "error",
+//                 message: error
+//             });
+//         }
+
+//         next({
+//             status: "success",
+//             message: "data retreived",
+//             data: results
+//         }, null);
+//     });
+// };
 
 exports.getTransaction = function(req, res, next) {
     var results = db.query("SELECT transactions.id, transactions.timestamp, transactions.amount, transactions.description, virtual_account.name AS virtual_account_name, physical_account.name AS physical_account_name, transactions.virtual_account AS virtual_account_id FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account ON physical_account.id = transactions.tofrom WHERE (transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "') AND transactions.id = '" + req.query.transaction + "') ORDER BY TIMESTAMP DESC", function(error, results, fields) {
@@ -279,6 +322,9 @@ exports.getTransaction = function(req, res, next) {
         }, null);
     });
 };
+
+
+
 
 exports.updateTransaction = function(req, res, next) {
 //    console.log('update transaction controller called');
@@ -300,7 +346,7 @@ exports.updateTransaction = function(req, res, next) {
 };
 
 exports.transfersToDo = function(req, res, next) {
-    var results = db.query("SELECT transactions.timestamp, transactions.amount, transactions.description, transactions.virtual_account, virtual_account.name AS virtual_account_name, virtual_account.physical_account AS from_physical_account_name, transactions.tofrom AS to_physical_account_name, pseudo1.name AS real_from, pseudo2.name AS real_to FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account pseudo1 ON pseudo1.id = virtual_account.physical_account INNER JOIN physical_account pseudo2 ON pseudo2.id = transactions.tofrom WHERE ((transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "')) AND (DATE(timestamp) = CURDATE())) ORDER BY TIMESTAMP DESC", function(error, results, fields) {
+    var results = db.query("SELECT CONCAT (virtual_account.physical_account, '_', transactions.tofrom) AS group1, real_src.name AS src_real_acct, real_target.name AS target_real_acct, SUM(transactions.amount) AS total FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account AS real_target ON real_target.id = transactions.tofrom INNER JOIN physical_account AS real_src ON real_src.id = virtual_account.physical_account WHERE ((transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "')) AND (DATE(timestamp) = CURDATE())) GROUP BY group1", function(error, results, fields) {
         // console.log(results[0]);
         if (error) {
             next(null, {
@@ -316,6 +362,28 @@ exports.transfersToDo = function(req, res, next) {
         }, null);
     });
 };
+
+// exports.transfersToDo = function(req, res, next) {
+//     var results = db.query("SELECT transactions.timestamp, transactions.amount, transactions.description, transactions.virtual_account, virtual_account.name AS virtual_account_name, virtual_account.physical_account AS from_physical_account_name, transactions.tofrom AS to_physical_account_name, pseudo1.name AS real_from, pseudo2.name AS real_to FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account pseudo1 ON pseudo1.id = virtual_account.physical_account INNER JOIN physical_account pseudo2 ON pseudo2.id = transactions.tofrom WHERE ((transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "')) AND (DATE(timestamp) = CURDATE())) ORDER BY TIMESTAMP DESC", function(error, results, fields) {
+//         // console.log(results[0]);
+//         if (error) {
+//             next(null, {
+//                 status: "error",
+//                 message: error
+//             });
+//         }
+
+//         next({
+//             status: "success",
+//             message: "data retreived",
+//             data: results
+//         }, null);
+//     });
+// };
+
+
+
+
 
 exports.uploadFile = function(req, res, next) {
     // console.log('Source Account:' + req.body.account_id);
