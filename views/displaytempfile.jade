@@ -41,3 +41,8 @@ block content
         label="Submit Updates"
       ) Submit Updates
     br
+    | Update main transaction log when done:
+    form(action='/api/updatetransactionlog' enctype='multipart/form-data' method='post')
+     p
+     input(type="submit" value="Update Transaction Log" class="btn btn-primary")
+    br

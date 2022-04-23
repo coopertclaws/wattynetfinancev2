@@ -47,23 +47,55 @@ router.get('/', (req, res) => {
   });
 
 
-router.post('/', upload.single("uploadfile"), function(req, res) {
-  query.uploadFile(req, res, function(data, error) {
+// router.post('/', upload.single("uploadfile"), function(req, res) {
+//   query.uploadFile(req, res, function(data, error) {
+//     if(error) {
+//       res.send('Something Broke!');
+//       console.log('error');
+//     }
+//     else {
+//       console.log (data.data);
+//       res.redirect('manageuploads');
+//       // res.render('displayuploadsuccess', { title: 'Upload Success',
+//       //                                         // transfers_array: data.data
+//       //                                     });
+//     }
+
+//   })
+// })
+
+router.post('/', upload.single("uploadfile"), function(req, res, next) {
+  // Get user ID of logged in user
+  query.getUserByEmail(req, res, function(data, error) {
     if(error) {
-      res.send('Something Broke!');
-      console.log('error');
+        res.send('Something Broke!');
     }
     else {
-      console.log (data.data);
-      res.redirect('manageuploads');
-      // res.render('displayuploadsuccess', { title: 'Upload Success',
-      //                                         // transfers_array: data.data
-      //                                     });
+        // console.log('Data returned from getUserByEmail: ' + data.data[0].id);
+        res.locals.loggedinuser=data.data[0].id;
+        // res.send(data.data[0].name);
+        // res.redirect('manageuploads');
+        next();
     }
-
-  })
 })
 
+  }, function(req, res) {
+      // upload file
+      query.uploadFile(req, res, function(data, error) {
+          if(error) {
+              res.send('Something Broke from 2nd function');
+          }
+          else {
+              // console.log('LOVs retrieved: ' + data.data[0].name);
+              // console.log('Array still has value: ' + res.locals.temp_data[0].description);
+              res.redirect('manageuploads');
+
+              // res.send(data);
+              // res.redirect('virtualaccount');
+          }
+      })
+  }   
+);
 
 
 module.exports = router;

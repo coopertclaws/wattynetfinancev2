@@ -329,7 +329,9 @@ exports.uploadFile = function(req, res, next) {
                 // console.log('Valid date:: ' + moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
                 data[0] = (moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
                 data.push(req.body.account_id);
-                console.log(data);
+                data.push(res.locals.loggedinuser);
+                // console.log('logged in user: ' + res.locals.loggedinuser);
+                // console.log(data);
                 csvData.push(data);
             } else {
                 // console.log('invalid date, ignoring');
@@ -337,9 +339,9 @@ exports.uploadFile = function(req, res, next) {
             // csvData.push(data);
         })
         .on("end", function () {
-            let query = 'INSERT INTO temp_upload (date, description, amount, real_acct) VALUES ?';
+            let query = 'INSERT INTO temp_upload (date, description, amount, real_acct, user) VALUES ?';
             db.query(query, [csvData], (error, response) => {
-                console.log(error || response);
+                // console.log(error || response);
             });
 
             fs.unlinkSync(filePath)
@@ -355,9 +357,29 @@ exports.uploadFile = function(req, res, next) {
 
 };
 
+// exports.deleteFile = function(req, res, next) {
+//     //console.log(req.query);
+//     var results = db.query("TRUNCATE TABLE temp_upload", function (error, results, fields) {
+//         res.locals.results = results;
+//         if (error) {
+//             next(null,{
+//                 status: "error",
+//                 message: error
+//             });
+//         }
+
+//         next({
+//             status: "success",
+//             message: "data retrieved",
+//             data: results
+//         }, null);
+//     });
+  
+// };
+
 exports.deleteFile = function(req, res, next) {
     //console.log(req.query);
-    var results = db.query("TRUNCATE TABLE temp_upload", function (error, results, fields) {
+    var results = db.query("DELETE temp_upload FROM temp_upload INNER JOIN user ON user.id = temp_upload.user WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'", function (error, results, fields) {
         res.locals.results = results;
         if (error) {
             next(null,{
@@ -399,22 +421,58 @@ exports.updateTempFile = function(req, res, next) {
         // console.log('From controller - key: ' + key + ' value: ' + value);
         let query = "UPDATE temp_upload SET pot ='" + value + "' WHERE id = '" + key + "'";
             db.query(query, (error, response) => {
-                console.log(error || response);
+                // console.log(error || response);
             });
     };
     next();
 }
 
 
+exports.updateTransactionLog = function(req, res, next) {
+    //console.log(req.query);
+    var results = db.query("INSERT INTO transactions (user, virtual_account, amount, tofrom, description) SELECT user, pot, -amount, real_acct, description FROM temp_upload", function (error, results, fields) {
+        res.locals.results = results;
+        if (error) {
+            next(null,{
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retrieved",
+            data: results
+        }, null);
+    });
+  
+};
+
+
+
 
 exports.deleteTempFileEntries = function(req, res, next) {
-    for (const value of req.body.delete_entry) {
-        // console.log('From controller - key: ' + key + ' value: ' + value);
-        let query = "DELETE FROM temp_upload WHERE id = '" + value + "'";
-            db.query(query, (error, response) => {
-                console.log(error || response);
-            });
-    };
+    // Entries to delete could be string (single entry), array (multiple entries) or empty (nothing to delete)
+    // If array, loop through each.
+    // If string, use input directly (loop would loop through each character of string)
+    // Else, assume empty and go on to next bit
+    if (Array.isArray(req.body.delete_entry)) {
+        for (const value of req.body.delete_entry) {
+            console.log('From controller - value: ' + value);
+            let query = "DELETE FROM temp_upload WHERE id = '" + value + "'";
+                db.query(query, (error, response) => {
+                    // console.log(error || response);
+                });
+        };
+
+    } else if ((typeof req.body.delete_entry) === 'string') {
+        console.log(req.body.delete_entry + 'is type: ' + (typeof req.body.delete_entry));
+        let query = "DELETE FROM temp_upload WHERE id = '" + req.body.delete_entry + "'";
+                db.query(query, (error, response) => {
+                    // console.log(error || response);
+                });
+    }
+
     next();
 }
 
