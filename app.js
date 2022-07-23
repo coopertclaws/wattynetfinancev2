@@ -21,8 +21,8 @@ var multer = require('multer');
 var indexRouter = require('./routes/index');
 var createVirtualAccountRouter = require('./routes/createvirtualaccount');
 var createPhysicalAccountRouter = require('./routes/createphysicalaccount');
-var createPaymentRouter = require('./routes/createPayment');
-var createDepositRouter = require('./routes/createDeposit');
+var createPaymentRouter = require('./routes/createpayment');
+var createDepositRouter = require('./routes/createdeposit');
 var manageFilesRouter = require('./routes/managefiles');
 var deleteFileRouter = require('./routes/deletefile');
 
