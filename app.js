@@ -41,12 +41,6 @@ var manageUploadsAPIRouter = require('./routes/api/manageuploads');
 var updateTempUploadRouter = require('./routes/api/updatetempupload');
 var updateTransactionLogRouter = require('./routes/api/updatetransactionlog');
 
-// var registrationRouter = require('./routes/registration');
-// var productRouter = require('./routes/product');
-// var productlistRouter = require('./routes/productlist');
-// var manualraceRouter = require('./routes/manualrace');
-// var myprofileRouter = require('./routes/myprofile');
-
 const basicAuth = require('express-basic-auth');
 
 var app = module.exports = express();
