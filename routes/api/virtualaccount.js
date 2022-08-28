@@ -1,3 +1,5 @@
+// require('dotenv').config();
+
 var express = require('express');
 var router = express.Router();
 var methodOverride = require('method-override');
@@ -37,7 +39,9 @@ router.get('/', function(req, res, next) {
             }
             else {
                 // console.log(data.data);
+                // console.log('Environment: ' + process.env.ENVIRONMENT);
                 res.render('editvirtualaccount', { title: 'Edit Virtual Account Information',
+                                                        environment: process.env.ENVIRONMENT,
                                                         account_array: data.data[0]
                                                     });
             }
@@ -77,6 +81,7 @@ router.get('/', function(req, res, next) {
             else {
                 // console.log(data);
                 res.render('displayallvirtualaccounts', { title: 'Virtual Accounts',
+                                                    environment: process.env.ENVIRONMENT,
                                                     account_array: data.data
                                                 });
         }
