@@ -74,7 +74,7 @@ router.get('/', function(req, res, next) {
 
     }, function(req, res) {
     
-        query.getAllVirtualAccounts(req, res, function(data, error) {
+        query.getTrackedVirtualAccounts(req, res, function(data, error) {
             if(error) {
                 res.send('Something Broke!');
             }

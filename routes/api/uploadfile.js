@@ -80,7 +80,7 @@ router.post('/', upload.single("uploadfile"), function(req, res, next) {
 })
 
   }, function(req, res) {
-      // upload file
+      // upload file      
       query.uploadFile(req, res, function(data, error) {
           if(error) {
               res.send('Something Broke from 2nd function');

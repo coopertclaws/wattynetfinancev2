@@ -170,8 +170,26 @@ exports.getVirtualAccount = function(req, res, next) {
   
 };
 
-exports.getAllVirtualAccounts = function(req, res, next) {
+exports.getTrackedVirtualAccounts = function(req, res, next) {
     var results = db.query("SELECT virtual_account.id, virtual_account.name, virtual_account.current_balance, virtual_account.amount, virtual_account.starting_balance, physical_account.name AS real_account FROM virtual_account INNER JOIN user ON user.id = virtual_account.user INNER JOIN physical_account ON physical_account.id = virtual_account.physical_account WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'" + " AND virtual_account.track = '1'", function(error, results, fields) {
+        // console.log(results);
+        if (error) {
+            next(null, {
+                status: "error",
+                message: error
+            });
+        }
+
+        next({
+            status: "success",
+            message: "data retreived",
+            data: results
+        }, null);
+    });
+};
+
+exports.getAllVirtualAccounts = function(req, res, next) {
+    var results = db.query("SELECT virtual_account.id, virtual_account.name, virtual_account.current_balance, virtual_account.amount, virtual_account.starting_balance, physical_account.name AS real_account FROM virtual_account INNER JOIN user ON user.id = virtual_account.user INNER JOIN physical_account ON physical_account.id = virtual_account.physical_account WHERE user.email = " + "'" + req.userContext.userinfo.preferred_username + "'", function(error, results, fields) {
         // console.log(results);
         if (error) {
             next(null, {
@@ -387,63 +405,93 @@ exports.transfersToDo = function(req, res, next) {
 
 exports.uploadFile = function(req, res, next) {
     // console.log('Source Account:' + req.body.account_id);
-    let filePath = './uploads/' + req.file.filename;
-    let stream = fs.createReadStream(filePath);
-    let csvData = [];
-    let csvStream = csv
-        .parse()
-        .on("data", function (data) {
-            if(moment(data[0], "DD/MM/YYYY", true).isValid()) {
-                // console.log('Valid date:: ' + moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
-                data[0] = (moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
-                data.push(req.body.account_id);
-                data.push(res.locals.loggedinuser);
-                // console.log('logged in user: ' + res.locals.loggedinuser);
-                // console.log(data);
-                csvData.push(data);
-            } else {
-                // console.log('invalid date, ignoring');
-            }
-            // csvData.push(data);
-        })
-        .on("end", function () {
-            let query = 'INSERT INTO temp_upload (date, description, amount, real_acct, user) VALUES ?';
-            db.query(query, [csvData], (error, response) => {
-                // console.log(error || response);
+    // let filePath = './uploads/' + req.file.filename;
+    // let stream = fs.createReadStream(filePath);
+    // let csvData = [];
+
+    if(req.body.account_id=='111'){
+        console.log('Amazon Credit Card Detected');
+        let filePath = './uploads/' + req.file.filename;
+        let stream = fs.createReadStream(filePath);
+        let csvData = [];
+        let csvStream = csv
+            .parse()
+            .on("data", function (data) {
+                if(moment(data[0], "DD/MM/YYYY", true).isValid()) {
+                    // console.log('Valid date:: ' + moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
+                    data[0] = (moment(data[0], "DD/MM/YYYY").format("YYYY-MM-DD"));
+                    data.push(req.body.account_id);
+                    data.push(res.locals.loggedinuser);
+                    // console.log('logged in user: ' + res.locals.loggedinuser);
+                    // console.log(data);
+                    csvData.push(data);
+                    console.log(csvData);
+                } else {
+                    // console.log('invalid date, ignoring');
+                }
+                // csvData.push(data);
+            })
+            .on("end", function () {
+                let query = 'INSERT INTO temp_upload (date, description, amount, real_acct, user) VALUES ?';
+                console.log('Query: ' + query);
+                db.query(query, [csvData], (error, response) => {
+                    console.log(error || response);
+                });
+
+                fs.unlinkSync(filePath)
+
+                next({
+                    status: "success",
+                    message: "data retreived",
+                    // data: results
+                }, null);
             });
 
-            fs.unlinkSync(filePath)
+        stream.pipe(csvStream);
 
-            next({
-                status: "success",
-                message: "data retreived",
-                // data: results
-            }, null);
-        });
+    } else if(req.body.account_id=='161') {
+        console.log('Virgin Credit Card Detected');
+        let filePath = './uploads/' + req.file.filename;
+        let stream = fs.createReadStream(filePath);
+        let csvData = [];
+        let csvStream = csv
+            .parse()
+            .on("data", function (data) {
+                if(moment(data[0], "YYYY-MM-DD", true).isValid()) {
+                    // console.log('Valid date:: ' + moment(data[0], "YYYY-MM-DD").format("YYYY-MM-DD"));
+                    // Need to update array in two steps since we're filtering individual columns from this card statement
+                    var temp_array = [];
+                    temp_array.push(data[0], data[3], data[2], req.body.account_id, res.locals.loggedinuser);
+                    csvData.push(temp_array);
+                    console.log(csvData);
+                } else {
+                    console.log('invalid date, ignoring');
+                }
+               
+            })
+            .on("end", function () {
+                let query = 'INSERT INTO temp_upload (date, description, amount, real_acct, user) VALUES ?';
+                console.log('Query: ' + query);
+                db.query(query, [csvData], (error, response) => {
+                    console.log(error || response);
+                });
 
-    stream.pipe(csvStream);
+                fs.unlinkSync(filePath)
 
+                next({
+                    status: "success",
+                    message: "data retreived",
+                    // data: results
+                }, null);
+            });
+
+        stream.pipe(csvStream);
+
+
+    } else {
+        console.log('No match');
+    }
 };
-
-// exports.deleteFile = function(req, res, next) {
-//     //console.log(req.query);
-//     var results = db.query("TRUNCATE TABLE temp_upload", function (error, results, fields) {
-//         res.locals.results = results;
-//         if (error) {
-//             next(null,{
-//                 status: "error",
-//                 message: error
-//             });
-//         }
-
-//         next({
-//             status: "success",
-//             message: "data retrieved",
-//             data: results
-//         }, null);
-//     });
-  
-// };
 
 exports.deleteFile = function(req, res, next) {
     //console.log(req.query);

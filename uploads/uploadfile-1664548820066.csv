@@ -1,0 +1,2 @@
+Transaction date,Posting date,Billing Amount,Merchant,Merchant City,Merchant State,Merchant Postcode,Reference Number,Debit or Credit,SICMCC Code,Status,Transaction Currency,Additional Card Holder,Card Used
+2022-09-24,2022-09-26,164.0,PARENTPAY E-COM R,BRIDGWATER,GBR,TA6 4RR,55541962269288003595046,DBIT,3001,BILLED,GBP,false,1235
