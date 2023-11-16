@@ -1,4 +1,6 @@
+const { findSeries } = require("async");
 const mysql = require("mysql");
+var fs = require('fs');
 
 // Create a pool connection to the database
 const pool = mysql.createPool({
@@ -6,7 +8,11 @@ const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DATABASE
+  database: process.env.DATABASE,
+  ssl: {
+    ca : fs.readFileSync(__dirname + '/DigiCertGlobalRootCA.crt.pem'),
+    rejectUnauthorized: false
+  }
 });
 
 // Open the connection
