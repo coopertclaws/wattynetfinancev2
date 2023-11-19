@@ -364,7 +364,7 @@ exports.updateTransaction = function(req, res, next) {
 };
 
 exports.transfersToDo = function(req, res, next) {
-    var results = db.query("SELECT CONCAT (virtual_account.physical_account, '_', transactions.tofrom) AS group1, real_src.name AS src_real_acct, real_target.name AS target_real_acct, SUM(transactions.amount) AS total FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account AS real_target ON real_target.id = transactions.tofrom INNER JOIN physical_account AS real_src ON real_src.id = virtual_account.physical_account WHERE ((transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "')) AND (DATE(timestamp) = CURDATE())) GROUP BY group1", function(error, results, fields) {
+    var results = db.query("SELECT CONCAT (virtual_account.physical_account, '_', transactions.tofrom) AS group1, real_src.name AS src_real_acct, real_target.name AS target_real_acct, SUM(transactions.amount) AS total FROM transactions INNER JOIN virtual_account ON virtual_account.id = transactions.virtual_account INNER JOIN physical_account AS real_target ON real_target.id = transactions.tofrom INNER JOIN physical_account AS real_src ON real_src.id = virtual_account.physical_account WHERE ((transactions.user = (SELECT id FROM USER WHERE email = '" + req.userContext.userinfo.preferred_username + "')) AND (DATE(timestamp) = CURDATE())) GROUP BY group1, real_src.name, real_target.name", function(error, results, fields) {
         // console.log(results[0]);
         if (error) {
             next(null, {
